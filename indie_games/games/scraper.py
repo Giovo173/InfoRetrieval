@@ -75,30 +75,27 @@ def fetch_game_details(url):
 
 # Function to store data in SQLite
 def store_in_database(games_data):
-    conn = sqlite3.connect('games.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS games (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            description TEXT,
-            tokenized_description TEXT,
-            tags TEXT,
-            url TEXT
-        )
-    ''')
+    with sqlite3.connect('games.db') as conn:
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS games (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                description TEXT,
+                tokenized_description TEXT,
+                tags TEXT,
+                url TEXT
+            )
+        ''')
 
+        for game in games_data:
+            if game:  # Ensure valid data
+                c.execute('''
+                INSERT INTO games (title, description, tokenized_description, tags, url)
+                VALUES (?, ?, ?, ?, ?)''', 
+                (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
 
-    for game in games_data:
-        if game:  # Ensure valid data
-            c.execute('''
-            INSERT INTO games (title, description, tokenized_description, tags, url)
-            VALUES (?, ?, ?, ?, ?)''', 
-            (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
-
-    conn.commit()
-    conn.close()
-
+        conn.commit()
 # Main function
 def main():
     # Step 1: Collect game links
