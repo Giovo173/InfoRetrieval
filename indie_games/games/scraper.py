@@ -67,6 +67,7 @@ def fetch_game_details(url):
             'tags': tags,
             'tokenized_description': " ".join(tokens),  # Store tokens as a space-separated string
             'url': url
+            #TODO add rating price and source site
         }
     except Exception as e:
         print(f"Failed to fetch {url}: {e}")
@@ -108,7 +109,7 @@ def main():
     for link in links:
         data = fetch_game_details(link)
         if data:
-            print(data['title'])
+            print(data['title'], data['tags'], data['tokenized_description'][:10])
             games_data.append(data)
 
     # Step 3: Store data in SQLite
