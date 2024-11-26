@@ -55,8 +55,19 @@ def fetch_game_details(url):
 
         # Parse game details
         title = soup.find('h1').text.strip()
-        description = soup.find('div', class_='formatted_description').text.strip()
-        tags = [tag.text for tag in soup.find_all('a', class_='tag')]
+        description_tag = soup.find('div', class_='formatted_description')
+        if description_tag:
+            description = description_tag.text.strip()
+        else:
+            description = "No description available"
+        # Extract tags from the fifth row of the table
+        table = soup.find('div', class_='game_info_panel_widget').find('table')
+        rows = table.find_all('tr')
+        if len(rows) >= 5:
+            tags = [tag.text.strip() for tag in rows[4].find_all('a')]
+            print(tags)
+        else:
+            tags = []
 
         # Tokenize the description
         tokens = word_tokenize(description)
