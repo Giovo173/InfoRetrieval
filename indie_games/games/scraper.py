@@ -8,12 +8,7 @@ import time
 import random
 import sqlite3
 
-# Proxy list (replace with actual proxies)
-PROXIES = [
-    'http://proxy1:port',
-    'http://proxy2:port',
-    'http://proxy3:port'
-]
+
 
 # User-Agent headers
 HEADERS = {
@@ -43,6 +38,7 @@ def get_game_links():
 
 import nltk
 from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
 
 # Download NLTK data (run once)
 # nltk.download('punkt')
@@ -55,28 +51,19 @@ def fetch_game_details(url):
 
         # Parse game details
         title = soup.find('h1').text.strip()
-        description_tag = soup.find('div', class_='formatted_description')
-        if description_tag:
-            description = description_tag.text.strip()
-        else:
-            description = "No description available"
-        # Extract tags from the fifth row of the table
-        table = soup.find('div', class_='game_info_panel_widget').find('table')
-        rows = table.find_all('tr')
-        if len(rows) >= 5:
-            tags = [tag.text.strip() for tag in rows[4].find_all('a')]
-            print(tags)
-        else:
-            tags = []
-
+        description = soup.find('div', class_='formatted_description').text.strip()
+        tags = [tag.text for tag in soup.find_all('a', class_='tag')]
+        ps = PorterStemmer()
         # Tokenize the description
         tokens = word_tokenize(description)
-
+        for i in range(len(tokens)):
+            tokens[i] = ps.stem(tokens[i])
+        
         return {
             'title': title,
             'description': description,
             'tags': tags,
-            'tokenized_description': " ".join(tokens),  # Store tokens as a space-separated string
+            'stemmed_description': " ".join(tokens),  # Store tokens as a space-separated string
             'url': url
             #TODO add rating price and source site
         }
@@ -87,27 +74,30 @@ def fetch_game_details(url):
 
 # Function to store data in SQLite
 def store_in_database(games_data):
-    with sqlite3.connect('games.db') as conn:
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS games (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT,
-                description TEXT,
-                tokenized_description TEXT,
-                tags TEXT,
-                url TEXT
-            )
-        ''')
+    conn = sqlite3.connect('Itch.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS games (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            description TEXT,
+            tokenized_description TEXT,
+            tags TEXT,
+            url TEXT
+        )
+    ''')
 
-        for game in games_data:
-            if game:  # Ensure valid data
-                c.execute('''
-                INSERT INTO games (title, description, tokenized_description, tags, url)
-                VALUES (?, ?, ?, ?, ?)''', 
-                (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
 
-        conn.commit()
+    for game in games_data:
+        if game:  # Ensure valid data
+            c.execute('''
+            INSERT INTO games (title, description, tokenized_description, tags, url)
+            VALUES (?, ?, ?, ?, ?)''', 
+            (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
+
+    conn.commit()
+    conn.close()
+
 # Main function
 def main():
     # Step 1: Collect game links
