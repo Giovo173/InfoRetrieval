@@ -55,8 +55,19 @@ def fetch_game_details(url):
 
         # Parse game details
         title = soup.find('h1').text.strip()
-        description = soup.find('div', class_='formatted_description').text.strip()
-        tags = [tag.text for tag in soup.find_all('a', class_='tag')]
+        description_tag = soup.find('div', class_='formatted_description')
+        if description_tag:
+            description = description_tag.text.strip()
+        else:
+            description = "No description available"
+        # Extract tags from the fifth row of the table
+        table = soup.find('div', class_='game_info_panel_widget').find('table')
+        rows = table.find_all('tr')
+        if len(rows) >= 5:
+            tags = [tag.text.strip() for tag in rows[4].find_all('a')]
+            print(tags)
+        else:
+            tags = []
 
         # Tokenize the description
         tokens = word_tokenize(description)
@@ -76,30 +87,27 @@ def fetch_game_details(url):
 
 # Function to store data in SQLite
 def store_in_database(games_data):
-    conn = sqlite3.connect('games.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS games (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            description TEXT,
-            tokenized_description TEXT,
-            tags TEXT,
-            url TEXT
-        )
-    ''')
+    with sqlite3.connect('games.db') as conn:
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS games (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                description TEXT,
+                tokenized_description TEXT,
+                tags TEXT,
+                url TEXT
+            )
+        ''')
 
+        for game in games_data:
+            if game:  # Ensure valid data
+                c.execute('''
+                INSERT INTO games (title, description, tokenized_description, tags, url)
+                VALUES (?, ?, ?, ?, ?)''', 
+                (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
 
-    for game in games_data:
-        if game:  # Ensure valid data
-            c.execute('''
-            INSERT INTO games (title, description, tokenized_description, tags, url)
-            VALUES (?, ?, ?, ?, ?)''', 
-            (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
-
-    conn.commit()
-    conn.close()
-
+        conn.commit()
 # Main function
 def main():
     # Step 1: Collect game links
