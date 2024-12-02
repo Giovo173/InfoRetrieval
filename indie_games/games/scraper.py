@@ -26,7 +26,7 @@ def get_game_links():
     game_links = set()
 
     try:
-        for _ in range(10):  # Adjust for the number of scrolls you need
+        for _ in range(20):  # Adjust for the number of scrolls you need
             # Find all div elements with the class 'title game_link'
             games = driver.find_elements(By.CSS_SELECTOR, '.title.game_link')
             for game in games:
