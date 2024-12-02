@@ -45,3 +45,28 @@ def fetch_game_details():
     except Exception as e:
         print(f"Failed to fetch {e}")
         return None
+
+def store_in_database(games_data):
+    conn = sqlite3.connect('IndieDB.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS games (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            description TEXT,
+            tokenized_description TEXT,
+            tags TEXT,
+            url TEXT
+        )
+    ''')
+
+    for game in games_data:
+        if game:
+            c.execute('''
+                INSERT INTO games (title, description, tokenized_description, tags, url)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (game['title'], game['description'], game['tokenized_description'], str(game['tags']), game['url']))
+    conn.commit()
+    conn.close()
+
+    store_in_database(fetch_game_details())
