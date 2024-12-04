@@ -8,11 +8,17 @@ from nltk.stem import PorterStemmer
 
 def get_game_links():
     links = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    }
     for i in range(1, 5):
         url = f'https://www.indiedb.com/games/page/{i}'
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
+        print(response)
         soup = bs(response.content, 'html.parser')
-        for game in soup.find_all('div', class_='row'):
+        anchors = soup.find_all('a', class_='image')
+        print(anchors)
+        for game in anchors:
             link = game.find('a')['href']
             links.append(link)
     return links
@@ -69,4 +75,4 @@ def store_in_database(games_data):
     conn.commit()
     conn.close()
 
-    store_in_database(fetch_game_details())
+store_in_database(fetch_game_details())

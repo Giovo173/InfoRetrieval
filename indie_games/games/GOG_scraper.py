@@ -36,35 +36,44 @@ def scrape(num):
     ps = PorterStemmer()
     
     for link in links:
-        #get the game page
-        soup = BeautifulSoup(requests.get(link).content, 'html.parser')
         
-        title = soup.find('h1', class_='productcard-basics__title').text
-        
-        description = soup.find('div', class_="description").text
-        
-        tokenized_description = word_tokenize(description)
-        #stemming
-        for i in range(len(tokenized_description)):
-            tokenized_description[i] = ps.stem(tokenized_description[i])
-        
-        
-        rating = soup.find('div', class_="rating productcard-rating__score").text
-        
-        tags = soup.find_all('a', class_="details__link details__link--tag")
-        
-        price = soup.find('span', class_="product-actions-price__base-amount _price ng-binding")
-
-        
-        {
-            'title': title,
-            'description': description,
-            'stemmed_description': " ".join(tokenized_description),
-            'tags': tags,
-            'price': price,
-            'url': link,
-            'rating': rating,
-        }
+        try:
+            #get the game page
+            soup = BeautifulSoup(requests.get(link).content, 'html.parser')
+            
+            title = soup.find('h1', class_='productcard-basics__title').text
+            
+            description = soup.find('div', class_="description").text
+            
+            tokenized_description = word_tokenize(description)
+            #stemming
+            for i in range(len(tokenized_description)):
+                tokenized_description[i] = ps.stem(tokenized_description[i])
+            
+            
+            rating = soup.find('div', class_="rating productcard-rating__score")
+            if rating:
+                rating = rating.text
+            else:
+                rating = "No rating"
+            print(title)
+            print(rating)
+            tags = soup.find_all('a', class_="details__link details__link--tag")
+            price_div = soup.find('div', class_="product-actions-price")
+            price = price_div.find('span', class_="product-actions-price__final-amount _price").text
+            print(price, '\n')
+            data = {
+                'title': title,
+                'description': description,
+                'stemmed_description': " ".join(tokenized_description),
+                'tags': tags,
+                'price': price,
+                'url': link,
+                'rating': rating,
+            }
+            store_in_database(data)
+        except Exception as e:
+            print("Error while scraping  ", link, e)
     print("added to database", len(links))
         
     
