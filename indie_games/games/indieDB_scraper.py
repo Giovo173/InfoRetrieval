@@ -89,7 +89,7 @@ def store_in_database(games_data):
     conn = sqlite3.connect('Steam.db')
     c = conn.cursor()
     c.execute('''
-        CREATE TABLE IF NOT EXISTS games (
+        CREATE TABLE IF NOT EXISTS inidieDB (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             description TEXT,
@@ -103,7 +103,7 @@ def store_in_database(games_data):
         for game in games_data:
             if game:
                 c.execute('''
-                    INSERT INTO games (title, description, tokenized_description, tags, url)
+                    INSERT INTO indieDB (title, description, tokenized_description, tags, url)
                     VALUES (?, ?, ?, ?, ?)
                 ''', (game['title'], game['description'], game['tokenized_description'], str(game['tags']), game['url']))
         conn.commit()

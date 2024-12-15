@@ -71,26 +71,44 @@ def scrape(num):
                 'url': link,
                 'rating': rating,
             }
-            store_in_database(data)
         except Exception as e:
             print("Error while scraping  ", link, e)
+        try:
+            store_in_database(data)
+        except Exception as e:
+            print("Error while storing in database ", link, e)
     print("added to database", len(links))
         
-    
 def store_in_database(games_data):
     conn = sqlite3.connect('GOG.db')
     c = conn.cursor()
     c.execute('''
-        CREATE TABLE IF NOT EXISTS games (
+        CREATE TABLE IF NOT EXISTS GOG (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             description TEXT,
-            tokenized_description TEXT,
+            stemmed_description TEXT,
             tags TEXT,
-            url TEXT
-            rating TEXT
+            url TEXT,
+            rating TEXT,
             price TEXT
         )
     ''')
+    
+    c.execute('''
+        INSERT INTO GOG (title, description, stemmed_description, tags, url, rating, price)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        games_data['title'],
+        games_data['description'],
+        games_data['stemmed_description'],
+        ','.join([tag.text for tag in games_data['tags']]),
+        games_data['url'],
+        games_data['rating'],
+        games_data['price']
+    ))
+    
+    conn.commit()
+    conn.close()
 
 scrape(4)
