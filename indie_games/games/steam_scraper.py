@@ -18,7 +18,7 @@ ps = PorterStemmer()
 def get_game_links():
     links = []
     options = Options()
-    options.headless = False  # Set to False for debugging
+    options.headless = True  # Set to True for headless browsing
     driver = webdriver.Chrome(options=options)
     
     url = 'https://store.steampowered.com/tags/en/Indie/'
@@ -115,7 +115,7 @@ def fetch_game_details():
                     price = retry_find_element(driver, By.CLASS_NAME, 'discount_original_price').text.strip()
                 except Exception:
                     try:
-                        price = retry_find_element(driver, By.CLASS_NAME, 'game_purchase_price price').text.strip()
+                        price = retry_find_element(driver, By.CLASS_NAME, 'game_purchase_price').text.strip()
                     except Exception:
                         price = "No price available"
 
@@ -130,7 +130,7 @@ def fetch_game_details():
                     'description': description,
                     'price': price,
                     'tags': tags,
-                    'tokenized_description': " ".join(tokens),
+                    'stemmed_description': " ".join(tokens),
                     'image_url': image_url,
                     'url': l
                 })
