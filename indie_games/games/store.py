@@ -8,11 +8,11 @@ def store_in_database(games_data, site):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             description TEXT,
-            tokenized_description TEXT,
+            stemmed_description TEXT,
             tags TEXT,
             url TEXT,
-            image_url TEXT,
-            price REAL
+            rating TEXT,
+            price TEXT
         )
     ''')
 
@@ -20,8 +20,8 @@ def store_in_database(games_data, site):
         for game in games_data:
             if game:
                 c.execute(f'''
-                    INSERT INTO {site} (title, description, tokenized_description, tags, url, image_url, price)
+                    INSERT INTO {site} (title, description, stemmed_description, tags, url,rating, price)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''', (game['title'], game['description'], game['tokenized_description'], str(game['tags']), game['url'], game['image_url'], game['price']))
+                ''', (game['title'], game['description'], game['stemmed_description'], str(game['tags']), game['url'], game['rating'], game['price']))
         conn.commit()
     conn.close()

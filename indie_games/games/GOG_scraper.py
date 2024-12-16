@@ -68,8 +68,8 @@ def scrape(num):
                 'stemmed_description': " ".join(tokenized_description),
                 'tags': tags,
                 'price': price,
-                'url': link,
                 'rating': rating,
+                'url': link,
             }
             data_all.append(data)
         except Exception as e:
