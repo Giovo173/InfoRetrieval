@@ -12,9 +12,10 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 import time
 from store import store_in_database
-
+import requests
+import os
 ps = PorterStemmer()
-
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'}
 def get_game_links():
     links = []
     options = Options()
@@ -35,12 +36,12 @@ def get_game_links():
         
         # Scroll and collect game links
         prev_game_count = 0
-        max_attempts = 20
+        max_attempts = 1
         attempts = 0
 
         while attempts < max_attempts:
             # Scroll down the page
-            driver.execute_script("window.scrollBy(0, 1000);")
+            driver.execute_script("window.scrollBy(0, 100);")
             time.sleep(2)  # Allow time for new content to load
             
             # Click "Show More" button if visible
@@ -107,7 +108,16 @@ def fetch_game_details():
                     tags = []
 
                 try:
+                    image_save_dir = 'steam_images'
                     image_url = retry_find_element(driver, By.CLASS_NAME, 'game_header_image_full').get_attribute('src')
+                    if not os.path.exists(image_save_dir):
+                        os.makedirs(image_save_dir)
+
+                    # Download the image
+                    image_filename = os.path.join(image_save_dir, os.path.basename(image_url))
+                    response = requests.get(image_url, headers=HEADERS, timeout=10)
+                    with open(image_filename, 'wb') as img_file:
+                        img_file.write(response.content)
                 except Exception:
                     image_url = "No image available"
 
@@ -137,7 +147,7 @@ def fetch_game_details():
                     'price': price,
                     'tags': tags,
                     'stemmed_description': " ".join(tokens),
-                    'image_url': image_url,
+                    'image_path': image_filename,
                     'rating': rating,
                     'url': l
                 })
@@ -145,6 +155,7 @@ def fetch_game_details():
             except Exception as e:
                 print(f"Failed to fetch details for {l}: {e}, skipping")
                 continue
+        print(f"Total games fetched: {len(game_details)}")
         return game_details
     
     except Exception as e:

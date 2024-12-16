@@ -15,26 +15,39 @@ HEADERS = {
 }
 
 def get_game_links():
-    driver = webdriver.Chrome()  # Ensure ChromeDriver is installed and in PATH
-    driver.get("https://itch.io/games")
-    game_links = set()
+    driver = webdriver.Chrome()
+    driver.get("https://itch.io/games/")
+    
+    game_links = set()  # To store unique game links and images
+    game_info = []  # To store the final results (links and image URLs)
 
     try:
-        for _ in range(1):  # Adjust for the number of scrolls you need
-            # Find all div elements with the class 'title game_link'
-            games = driver.find_elements(By.CSS_SELECTOR, '.title.game_link')
+        for _ in range(20):  # Adjust for the number of scrolls you need
+            # Find all 'a' elements with the class 'thumb_link game_link'
+            games = driver.find_elements(By.CSS_SELECTOR, '.thumb_link.game_link')
+            
             for game in games:
                 link = game.get_attribute('href')  # Extract the href attribute
-                print(link)
-                if link:  # Ensure the link is not None
+                try:
+                    img_tag = game.find_element(By.TAG_NAME, 'img')  # Find the <img> element inside the <a> tag
+                    img_url = img_tag.get_attribute('src')  # Extract the image URL from the src attribute
+                except Exception as e:
+                    print(f"Error extracting image URL: {e}")
+                    img_url = None
+
+                if link and img_url:  # Ensure both link and image URL are not None
+                    print(f"Link: {link}, Image URL: {img_url}")
+                    game_info.append({'link': link, 'image_url': img_url})
                     game_links.add(link)
+            
+            # Scroll down to load more games
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)  # Wait for the page to load
+
     finally:
         driver.quit()
 
-    return list(game_links)
-
+    return game_info  # Return a list of dictionaries with game links and image URLs
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
@@ -43,8 +56,23 @@ from nltk.stem import PorterStemmer
 # nltk.download('punkt')
 nltk.download('punkt_tab')
 
-def fetch_game_details(url):
+import os
+
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'}
+
+def fetch_game_details(url, image_url, image_save_dir="itch_images"):
     try:
+        # Create the directory to save images if it doesn't exist
+        if not os.path.exists(image_save_dir):
+            os.makedirs(image_save_dir)
+
+        # Download the image
+        image_filename = os.path.join(image_save_dir, os.path.basename(image_url))
+        response = requests.get(image_url, headers=HEADERS, timeout=10)
+        with open(image_filename, 'wb') as img_file:
+            img_file.write(response.content)
+
+        # Fetch and parse the game's details page
         response = requests.get(url, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -53,60 +81,52 @@ def fetch_game_details(url):
         if title_element:
             title = title_element.text.strip()
         else:
-            title = url.split('/')[-1]  # Take the last part of the URL as the title
-            #replace the - with a space
-            title = title.replace('-', ' ')
+            # Take the last part of the URL as the title
+            title = url.split('/')[-1].replace('-', ' ')
+
         description = soup.find('div', class_='formatted_description')
         if description:
-            description = description.text
+            description = description.text.strip()
         else:
             description = "No description available"
-            
-        tags = []
-        game_info_panel = soup.find('div', class_='game_info_panel_widget base_widget')
-        # Find the 'Tags' row
-        tags_row = soup.find("td", text="Tags")
 
-        # Extract all the tags (anchor elements) in the next <td>
+        tags = []
+        tags_row = soup.find("td", string="Tags")
         if tags_row:
             tags_td = tags_row.find_next_sibling("td")
             tags = [a.text.strip() for a in tags_td.find_all("a")]
 
-            print("Extracted Tags:", tags)
+        rating_element = soup.find('div', class_='star_value')
+        if rating_element and rating_element.get('content'):
+            rating = rating_element['content']
         else:
-            print("Tags row not found.")
-        
-        #take the title of the div "aggragate rating to have the rating"
-        rating = soup.find('div', class_='star_value')['content']
-        if not rating:
             rating = "No rating"
-        
-        print(f'======================{rating}=====================================')
-        price = soup.find('span', class_='dollars original_price')
-        if price:
-            price = price.text
+
+        price_element = soup.find('span', class_='dollars original_price')
+        if price_element:
+            price = price_element.text.strip()
         else:
             price = "Free"
-            
+
+        # Stem the description
         ps = PorterStemmer()
-        # Tokenize the description
         tokens = word_tokenize(description)
-        for i in range(len(tokens)):
-            tokens[i] = ps.stem(tokens[i])
-        
+        stemmed_description = " ".join(ps.stem(token) for token in tokens)
+
+        # Return the game's details along with the image path
         return {
             'title': title,
             'description': description,
             'tags': tags,
-            'stemmed_description': " ".join(tokens),  # Store tokens as a space-separated string
+            'stemmed_description': stemmed_description,
             'url': url,
             'rating': rating,
             'price': price,
+            'image_path': image_filename
         }
     except Exception as e:
-        print(f"Failed to fetch {url}: {e}")
+        print(f"Failed to fetch details for {url}: {e}")
         return None
-
 
 # Main function
 def main():
@@ -118,10 +138,10 @@ def main():
     print("Fetching game details...")
     games_data = []
     for link in links:
-        data = fetch_game_details(link)
+        data = fetch_game_details(link.get('link'), link.get('image_url'))
         if data:
-            print(data['title'], data['tags'], data['stemmed_description'][:10])
             games_data.append(data)
+        time.sleep(random.uniform(1, 2))
 
     # Step 3: Store data in SQLite
     print("Storing data in the database...")
