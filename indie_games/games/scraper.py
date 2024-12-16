@@ -7,8 +7,7 @@ import requests
 import time
 import random
 import sqlite3
-
-
+from store import store_in_database
 
 # User-Agent headers
 HEADERS = {
@@ -50,9 +49,47 @@ def fetch_game_details(url):
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Parse game details
-        title = soup.find('h1').text.strip()
-        description = soup.find('div', class_='formatted_description').text.strip()
-        tags = [tag.text for tag in soup.find_all('a', class_='tag')]
+        title_element = soup.find('h1', class_='game_title')
+        if title_element:
+            title = title_element.text.strip()
+        else:
+            title = url.split('/')[-1]  # Take the last part of the URL as the title
+            #replace the - with a space
+            title = title.replace('-', ' ')
+        description = soup.find('div', class_='formatted_description')
+        if description:
+            description = description.text
+        else:
+            description = "No description available"
+            
+        tags = []
+        game_info_panel = soup.find('div', class_='game_info_panel_widget base_widget')
+        # Find the 'Tags' row
+        tags_row = soup.find("td", text="Tags")
+
+        # Extract all the tags (anchor elements) in the next <td>
+        if tags_row:
+            tags_td = tags_row.find_next_sibling("td")
+            tags = [a.text.strip() for a in tags_td.find_all("a")]
+
+            print("Extracted Tags:", tags)
+        else:
+            print("Tags row not found.")
+        
+        #take the title of the div "aggragate rating to have the rating"
+        rating = soup.find('div', class_='aggragate_rating')
+        if rating:
+            rating = rating.find('title').text
+        else:
+            rating = "No rating available"
+        
+        
+        price = soup.find('span', class_='dollars original_price')
+        if price:
+            price = price.text
+        else:
+            price = "Free"
+            
         ps = PorterStemmer()
         # Tokenize the description
         tokens = word_tokenize(description)
@@ -64,39 +101,14 @@ def fetch_game_details(url):
             'description': description,
             'tags': tags,
             'stemmed_description': " ".join(tokens),  # Store tokens as a space-separated string
-            'url': url
-            #TODO add rating price and source site
+            'url': url,
+            'rating': rating,
+            'price': price,
         }
     except Exception as e:
         print(f"Failed to fetch {url}: {e}")
         return None
 
-
-# Function to store data in SQLite
-def store_in_database(games_data):
-    conn = sqlite3.connect('Itch.db')
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS games (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            description TEXT,
-            tokenized_description TEXT,
-            tags TEXT,
-            url TEXT
-        )
-    ''')
-
-
-    for game in games_data:
-        if game:  # Ensure valid data
-            c.execute('''
-            INSERT INTO games (title, description, tokenized_description, tags, url)
-            VALUES (?, ?, ?, ?, ?)''', 
-            (game['title'], game['description'], game['tokenized_description'], ','.join(game['tags']), game['url']))
-
-    conn.commit()
-    conn.close()
 
 # Main function
 def main():
@@ -110,12 +122,12 @@ def main():
     for link in links:
         data = fetch_game_details(link)
         if data:
-            print(data['title'], data['tags'], data['tokenized_description'][:10])
+            print(data['title'], data['tags'], data['stemmed_description'][:10])
             games_data.append(data)
 
     # Step 3: Store data in SQLite
     print("Storing data in the database...")
-    store_in_database(games_data)
+    store_in_database(games_data, 'itchio')
     print("Done!")
 
 if __name__ == "__main__":

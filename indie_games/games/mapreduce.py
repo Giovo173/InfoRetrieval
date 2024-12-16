@@ -8,19 +8,29 @@ def process_database(db_path, query_vector, vectorizer):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Fetch titles, tags, and descriptions
-    cursor.execute("SELECT id, title, tags, description FROM games")
+    # Fetch game details, including stemmed descriptions
+    cursor.execute("SELECT id, title, tags, stemmed_description FROM games")
     games = cursor.fetchall()
 
-    # Combine text fields and compute TF-IDF
-    corpus = [f"{title} {tags} {description}" for _, title, tags, description in games]
+    # Combine text fields (use stemmed_description instead of description)
+    corpus = [f"{title} {tags} {stemmed_description}" for _, title, tags, stemmed_description in games]
     tfidf_matrix = vectorizer.fit_transform(corpus)
 
     # Calculate cosine similarity
     scores = cosine_similarity(query_vector, tfidf_matrix).flatten()
 
-    # Emit results as a list of tuples (game_id, score)
-    results = [(game[0], score) for game, score in zip(games, scores)]
+    # Return results with full game details
+    results = [
+        {
+            "db_path": db_path,
+            "game_id": game[0],
+            "title": game[1],
+            "tags": game[2],
+            "stemmed_description": game[3],
+            "score": score
+        }
+        for game, score in zip(games, scores)
+    ]
     conn.close()
     return results
 
@@ -52,16 +62,10 @@ def shuffle_and_sort(results_list):
 
 
 def reduce_phase(combined_results):
-    """Deduplicate results and finalize the ranked list."""
-    final_results = []
-    seen_ids = set()
+    """Keep all results without deduplication."""
+    # Simply return the combined results
+    return combined_results
 
-    for game_id, score in combined_results:
-        if game_id not in seen_ids:
-            final_results.append((game_id, score))
-            seen_ids.add(game_id)
-
-    return final_results
 
 
 

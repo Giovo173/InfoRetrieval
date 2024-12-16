@@ -11,4 +11,4 @@ def search_games_view(request):
         db_paths = ['db1.sqlite3', 'db2.sqlite3', 'db3.sqlite3']
         results = search_games(query, db_paths)
 
-    return render(request, 'search_results.html', {'query': query, 'results': results})
+    return render(request, 'index.html', {'query': query, 'results': results})
