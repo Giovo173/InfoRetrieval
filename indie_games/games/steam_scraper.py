@@ -115,11 +115,17 @@ def fetch_game_details():
                     price = retry_find_element(driver, By.CLASS_NAME, 'discount_original_price').text.strip()
                 except Exception:
                     try:
-                        price = retry_find_element(driver, By.CLASS_NAME, 'game_purchase_price').text.strip()
+                        price_element = retry_find_element(driver, By.CLASS_NAME, 'game_purchase_price')
+                        price = price_element.text.strip()
                     except Exception:
                         price = "No price available"
 
-                print(f"Title: {title} Description: {description} Price: {price} Tags: {tags} Image URL: {image_url} URL: {l} \n")
+                try:
+                    rating = retry_find_element(driver, By.CLASS_NAME, 'game_review_summary').text.strip()
+                except Exception:
+                    rating = "No rating available"
+
+                print(f"Title: {title} \nDescription: {description} \nPrice: {price} \nTags: {tags} \nImage URL: {image_url} \nURL: {l} \nRating: {rating} \n")
 
                 tokens = word_tokenize(description)
                 # stemming
@@ -132,6 +138,7 @@ def fetch_game_details():
                     'tags': tags,
                     'stemmed_description': " ".join(tokens),
                     'image_url': image_url,
+                    'rating': rating,
                     'url': l
                 })
                 time.sleep(2)  # To avoid being blocked by the server
