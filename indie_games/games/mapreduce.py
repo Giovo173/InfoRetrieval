@@ -25,8 +25,11 @@ def process_database(db_path, query_vector, vectorizer):
             "db_path": db_path,
             "game_id": game[0],
             "title": game[1],
-            "tags": game[2],
-            "stemmed_description": game[3],
+            "desciption": game[2],
+            "tags": game[4],
+            "url": game[5],
+            "rating": game[6],
+            "price": game[7],
             "score": score
         }
         for game, score in zip(games, scores)

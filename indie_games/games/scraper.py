@@ -20,7 +20,7 @@ def get_game_links():
     game_links = set()
 
     try:
-        for _ in range(20):  # Adjust for the number of scrolls you need
+        for _ in range(1):  # Adjust for the number of scrolls you need
             # Find all div elements with the class 'title game_link'
             games = driver.find_elements(By.CSS_SELECTOR, '.title.game_link')
             for game in games:
@@ -77,13 +77,11 @@ def fetch_game_details(url):
             print("Tags row not found.")
         
         #take the title of the div "aggragate rating to have the rating"
-        rating = soup.find('div', class_='aggragate_rating')
-        if rating:
-            rating = rating.find('title').text
-        else:
-            rating = "No rating available"
+        rating = soup.find('div', class_='star_value')['content']
+        if not rating:
+            rating = "No rating"
         
-        
+        print(f'======================{rating}=====================================')
         price = soup.find('span', class_='dollars original_price')
         if price:
             price = price.text

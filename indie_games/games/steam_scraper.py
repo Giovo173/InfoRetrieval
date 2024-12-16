@@ -116,7 +116,7 @@ def fetch_game_details():
                     'title': title,
                     'description': description,
                     'tags': tags,
-                    'tokenized_description': " ".join(tokens),
+                    'stemmed_description': " ".join(tokens),
                     'url': l
                 })
                 time.sleep(2)  # To avoid being blocked by the server
