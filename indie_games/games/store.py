@@ -10,7 +10,9 @@ def store_in_database(games_data, site):
             description TEXT,
             tokenized_description TEXT,
             tags TEXT,
-            url TEXT
+            url TEXT,
+            image_url TEXT,
+            price REAL
         )
     ''')
 
@@ -18,8 +20,8 @@ def store_in_database(games_data, site):
         for game in games_data:
             if game:
                 c.execute(f'''
-                    INSERT INTO {site} (title, description, tokenized_description, tags, url)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (game['title'], game['description'], game['tokenized_description'], str(game['tags']), game['url']))
+                    INSERT INTO {site} (title, description, tokenized_description, tags, url, image_url, price)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (game['title'], game['description'], game['tokenized_description'], str(game['tags']), game['url'], game['image_url'], game['price']))
         conn.commit()
     conn.close()

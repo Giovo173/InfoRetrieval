@@ -106,7 +106,20 @@ def fetch_game_details():
                 except Exception:
                     tags = []
 
-                print(f"Title: {title} Description: {description} Tags: {tags} URL: {l} \n")
+                try:
+                    image_url = retry_find_element(driver, By.CLASS_NAME, 'game_header_image_full').get_attribute('src')
+                except Exception:
+                    image_url = "No image available"
+
+                try:
+                    price = retry_find_element(driver, By.CLASS_NAME, 'discount_original_price').text.strip()
+                except Exception:
+                    try:
+                        price = retry_find_element(driver, By.CLASS_NAME, 'game_purchase_price price').text.strip()
+                    except Exception:
+                        price = "No price available"
+
+                print(f"Title: {title} Description: {description} Price: {price} Tags: {tags} Image URL: {image_url} URL: {l} \n")
 
                 tokens = word_tokenize(description)
                 # stemming
@@ -115,8 +128,10 @@ def fetch_game_details():
                 game_details.append({
                     'title': title,
                     'description': description,
+                    'price': price,
                     'tags': tags,
                     'tokenized_description': " ".join(tokens),
+                    'image_url': image_url,
                     'url': l
                 })
                 time.sleep(2)  # To avoid being blocked by the server
