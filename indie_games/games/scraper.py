@@ -83,25 +83,25 @@ def fetch_game_details(url, image_url, image_save_dir="itch_images"):
         else:
             # Take the last part of the URL as the title
             title = url.split('/')[-1].replace('-', ' ')
-
+        # Extract description
         description = soup.find('div', class_='formatted_description')
         if description:
             description = description.text.strip()
         else:
             description = "No description available"
-
+        # Extract tags
         tags = []
         tags_row = soup.find("td", string="Tags")
         if tags_row:
             tags_td = tags_row.find_next_sibling("td")
             tags = [a.text.strip() for a in tags_td.find_all("a")]
-
+        # Extract rating
         rating_element = soup.find('div', class_='star_value')
         if rating_element and rating_element.get('content'):
             rating = rating_element['content']
         else:
             rating = "No rating"
-
+        # Extract price
         price_element = soup.find('span', class_='dollars original_price')
         if price_element:
             price = price_element.text.strip()

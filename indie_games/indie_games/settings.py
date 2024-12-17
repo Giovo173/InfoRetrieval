@@ -77,7 +77,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    'clustered_games': {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': BASE_DIR / 'clustered_games.sqlite',  # The new clustered data
+    },
 }
 
 
@@ -99,6 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+DATABASE_ROUTERS = ['indie_games.database_router.ClusteredGamesRouter']
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

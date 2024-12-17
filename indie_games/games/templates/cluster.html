@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clustered Games</title>
+</head>
+<body>
+    <h1>Game Clusters</h1>
+    {% for cluster in clusters %}
+        <h2>Cluster {{ cluster.cluster }}: {{ cluster.cluster_label }}</h2>
+        <ul>
+            {% for game in games %}
+                {% if game.cluster == cluster.cluster %}
+                    <li>
+                        <strong>{{ game.title }}</strong> - ${{ game.price }}<br>
+                        Tags: {{ game.tags }}<br>
+                        Description: {{ game.description }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>

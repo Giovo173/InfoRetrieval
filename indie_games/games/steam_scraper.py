@@ -36,12 +36,12 @@ def get_game_links():
         
         # Scroll and collect game links
         prev_game_count = 0
-        max_attempts = 1
+        max_attempts = 25
         attempts = 0
 
         while attempts < max_attempts:
             # Scroll down the page
-            driver.execute_script("window.scrollBy(0, 100);")
+            driver.execute_script("window.scrollBy(0, 1000);")
             time.sleep(2)  # Allow time for new content to load
             
             # Click "Show More" button if visible
