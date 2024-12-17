@@ -13,10 +13,12 @@
     <main>
         <h1>The Indie Game Lookout</h1>
         <button type="button" id="clustered-btn" onclick="window.location.href='/clustered-games/'">Switch to Clustered Games</button>
-        <form method="get" action="{% url 'search_games' %}">
+        <form method="get" action="{% url 'search_games' %}" class="searchform">
             <input id="query" name="q" type="text" placeholder="What are you looking for?">
             <button type="submit" id="btn">Search</button>
-
+        </form>
+        <form method="get" action="{% url 'browse_games' %}" class="browseform">
+            <button type="submit" id="browse-btn">Browse the collection</button>
         </form>
 
         <div class="results">
