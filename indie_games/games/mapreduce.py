@@ -65,6 +65,10 @@ def reduce_phase(combined_results):
     return combined_results
 
 def search_games(query, db_paths):
+    # Validate db_paths structure
+    if not all(isinstance(db, tuple) and len(db) == 2 for db in db_paths):
+        raise ValueError("db_paths must be a list of (db_path, table_name) tuples.")
+
     # Fit a global vectorizer
     global_corpus = []
     for db_path, table_name in db_paths:
