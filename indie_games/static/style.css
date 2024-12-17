@@ -12,9 +12,8 @@ main {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 4fr;
-    height: 100vh; /* Full viewport height */
+    height: 100vh;
 }
-
 
 h1 {
     grid-row: 1;
@@ -41,6 +40,21 @@ input {
     color: whitesmoke;
     width: 70%;
 }
+
+#btn {
+    border-radius: 5px;
+    height: 5vh;
+    font-size: 1.5em;
+    padding: 1vh;
+    background-color: rgb(173, 173, 173);
+    color: white;
+    cursor: pointer;
+}
+
+#btn:hover {
+    background-color: rgb(63, 63, 63);
+}
+
 .results {
     grid-row: 3;
     grid-column: 1 / span 3;
@@ -51,17 +65,17 @@ input {
     box-shadow: 0 2vh 4vh rgb(0, 0, 0);
     max-height: calc(100vh - 12vh); /* Adjust max height based on content */
     overflow-y: auto; /* Display scrollbar only if needed */
-    scrollbar-width: thin;
-    scroll-behavior: smooth;
-    scrollbar-color: gray;
+    scrollbar-width: none;
+    
 }
 .resultList {
     display: grid;
     gap: 5px;
+    overflow-x: hidden;
 }
 
 .gameDesc {
-    width: 100%; /* Ensure full width */
+    width: 50%; /* Ensure full width */
     white-space: pre-wrap; /* Allows line breaks without forcing element width */
     word-wrap: break-word; /* Ensure words break as needed */
 }
@@ -85,6 +99,7 @@ input {
     display: flex;
     flex-direction: row;
     text-wrap: wrap;
+    width: 80%;
 
 }
 

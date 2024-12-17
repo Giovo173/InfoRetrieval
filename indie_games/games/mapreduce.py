@@ -62,9 +62,14 @@ def shuffle_and_sort(results_list):
     return combined_results
 
 def reduce_phase(combined_results):
-    """Keep all results without deduplication."""
-    # Simply return the combined results
-    return combined_results
+    """Remove duplicate games based on game_id and keep the highest score."""
+    unique_results = {}
+    for result in combined_results:
+        game_id = result["game_id"]
+        if game_id not in unique_results or result["score"] > unique_results[game_id]["score"]:
+            unique_results[game_id] = result
+
+    return list(unique_results.values())
 
 def search_games(query, db_paths):
     # Validate db_paths structure
