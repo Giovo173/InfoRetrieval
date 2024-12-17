@@ -21,5 +21,5 @@ from games import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('clustered-games/', views.clustered_games_view, name='clustered_games'),
-    path('search-games/', views.search_games_view, name='search_games'),
+    path('/', views.search_games_view, name='search_games'),
 ]
