@@ -12,9 +12,9 @@ def search_games_view(request):
     ('./steam.db', 'steam'), 
     ('./itchio.db', 'itchio'),
     ('./gog.db', 'gog')
-]
+    ]
 
-        results = search_games(query, db_table_map)
+    results = search_games(query, db_table_map)
 
     return render(request, 'index.html', {'query': query, 'results': results})
 

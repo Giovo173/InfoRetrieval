@@ -1,6 +1,7 @@
 import sqlite3
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 from collections import Counter
 import re
@@ -9,9 +10,11 @@ from nltk.tokenize import word_tokenize
 import nltk
 
 # Download NLTK stopwords if not already downloaded
-nltk.download('stopwords')
-nltk.download('punkt')
-custom_stop_words = ['of', 'to', 'game']
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
+
+custom_stop_words = ['of', 'to', 'game', 'description', 'available']
+
 def clean_tags(tags):
     if not tags:
         return []
@@ -32,11 +35,9 @@ def clean_tags(tags):
     clean_list = [tag for tag in clean_list if re.match(r'^[a-z0-9\-]+$', tag)]
     return clean_list
 
-# Function to clean and tokenize text descriptions
 def clean_and_tokenize(text):
     # Load default stop words and customize by adding specific terms
     stop_words = set(stopwords.words('english'))
-    # Add specific words to exclude
 
     stop_words.update(custom_stop_words)
     
@@ -45,7 +46,6 @@ def clean_and_tokenize(text):
     # Remove stopwords and non-alphanumeric words
     return [word for word in tokens if word.isalnum() and word not in stop_words]
 
-# Function to generate meaningful cluster labels
 def get_cluster_labels(df, cluster_column, tags_column, descriptions_column, top_n=3, min_tag_freq=5):
     labels = {}
     for cluster in df[cluster_column].unique():
@@ -70,6 +70,54 @@ def get_cluster_labels(df, cluster_column, tags_column, descriptions_column, top
         labels[cluster] = ", ".join(most_common_tags + most_common_terms)
     return labels
 
+def rank_games_in_clusters(df, vectorizer, feature_matrix):
+    """
+    Rank games within each cluster based on multiple scoring factors
+    
+    Scoring considers:
+    1. Text relevance (TF-IDF score)
+    2. Whether the game is free
+    3. Length of description
+    4. Number of tags
+    """
+    # Create a copy to avoid SettingWithCopyWarning
+    df = df.copy()
+    
+    def calculate_score(row):
+        # Text relevance score (normalized TF-IDF)
+        text_score = np.mean(feature_matrix[row.name].toarray()[0])
+        
+        # Free game bonus
+        free_score = 1.2 if str(row['price']).lower() == 'free' else 1.0
+        
+        # Description length score
+        desc_length_score = len(str(row['description'])) / 1000  # Normalize
+        
+        # Tags count score
+        tags_count = len(clean_tags(row['tags']) if pd.notna(row['tags']) else [])
+        tags_score = tags_count / 10  # Normalize
+        
+        # Weighted combination of scores
+        total_score = (
+            0.4 * text_score + 
+            0.3 * free_score + 
+            0.2 * desc_length_score + 
+            0.1 * tags_score
+        )
+        
+        return total_score
+
+    # Calculate scores for the entire DataFrame
+    df['score'] = df.apply(calculate_score, axis=1)
+    
+    # Rank within each cluster
+    df['cluster_rank'] = df.groupby('cluster')['score'].rank(
+        method='dense', 
+        ascending=False
+    ).astype(int)
+    
+    return df
+
 # Specify the paths to your .db files
 db_table_map = {
     './steam.db': 'steam', 
@@ -81,7 +129,7 @@ dataframes = []
 
 for path, table_name in db_table_map.items():
     conn = sqlite3.connect(path)
-    query = f"SELECT id, title, description, tags, price, image_path FROM {table_name}"
+    query = f"SELECT id, title, description, tags, price, image_path, url, rating FROM {table_name}"
     dataframes.append(pd.read_sql_query(query, conn))
     conn.close()
 
@@ -109,9 +157,13 @@ cluster_labels = get_cluster_labels(combined_df, 'cluster', 'tags', 'description
 # Add labels to the DataFrame
 combined_df['cluster_label'] = combined_df['cluster'].map(cluster_labels)
 
+# Rank games within clusters
+combined_df = rank_games_in_clusters(combined_df, vectorizer, X)
+
 # Save to a new SQLite database
 conn = sqlite3.connect('clustered_games.sqlite')
 combined_df.to_sql('games_with_clusters', conn, if_exists='replace', index=False)
 conn.close()
 
-
+# Display preview
+print(combined_df[['id', 'title', 'cluster', 'cluster_label', 'cluster_rank', 'price']].head(5))
