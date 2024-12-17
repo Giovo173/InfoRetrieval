@@ -36,6 +36,17 @@
                         <div class="gameDesc">{{ game.description }}</div>
                         <div class="gameTag">{{ game.tags }}</div>
                         <div class="gamePrice">Price: {{ game.price }}</div>
+                        <div class="viewlink">
+                            {% if game.db_path == './itch.db' %}
+                                <a href={{game.url}} target="_blank">View on itch.io</a>
+                            {% elif game.db_path == './steam.db' %}
+                                <a href={{game.url}} target="_blank">View on Steam</a>
+                            {% elif game.db_path == './gog.db' %}
+                                <a href={{game.url}} target="_blank">View on GOG</a>
+                            {% else %}
+                                <a href={{game.url}} target="_blank">View on the official website</a>
+                            {% endif %}
+                        </div>
                     </div>
                     </div>
                 {% endif %}

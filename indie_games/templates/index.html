@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Daniel Dorigo Giovanni Elisei">
-    <title>Indie Game Lookout</title>
+    <title>Indie r Lookout</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <link rel="icon" href="{% static 'binoculars_17010397.png' %}" type="image/x-icon">
 </head>
 <body>
     <main>
-        <h1>The Indie Game Lookout</h1>
+        <h1>The Indie r Lookout</h1>
         <form method="get" action="{% url 'search_games' %}">
             <input id="query" name="q" type="text" placeholder="What are you looking for?">
             <button type="submit" id="btn">Search</button>
@@ -34,8 +34,10 @@
                                     <a href={{r.url}} target="_blank">View on itch.io</a>
                                 {% elif r.db_path == './steam.db' %}
                                     <a href={{r.url}} target="_blank">View on Steam</a>
-                                {% else %}
+                                {% elif r.db_path == './gog.db' %}
                                     <a href={{r.url}} target="_blank">View on GOG</a>
+                                {% else %}
+                                    <a href={{r.url}} target="_blank">View on the official website</a>
                                 {% endif %}
                             </div>
                         </div>

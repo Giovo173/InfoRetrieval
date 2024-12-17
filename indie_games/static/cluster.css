@@ -46,3 +46,11 @@ body{
     padding: 1vh;
     margin: 2px;
 }
+
+.viewlink{
+    border: 1px solid white;
+    border-radius: 5px;
+    width: 50%;
+    padding: 1vh;
+    margin: 2px;
+}

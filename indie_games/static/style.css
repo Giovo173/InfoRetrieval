@@ -11,7 +11,7 @@ body {
 main {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 4fr;
+    grid-template-rows: 1fr 1fr 6fr;
     height: 100vh;
 }
 
@@ -21,6 +21,7 @@ h1 {
     display: flex;
     justify-self: center;
     padding: 3vh;
+    margin-bottom: 0;
 }
 
 form{
@@ -28,7 +29,7 @@ form{
     grid-column: 1 / span 3;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     margin-top: 0;
 }
 
