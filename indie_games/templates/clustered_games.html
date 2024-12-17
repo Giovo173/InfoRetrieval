@@ -10,7 +10,9 @@
     <link rel="icon" href="{% static 'binoculars_17010397.png' %}" type="image/x-icon">
 </head>
 <body>
-    <h1>Game Clusters</h1>
+    <h1>The Indie Game Lookout: Game Clusters</h1>
+    <button type="button" id="clustered-btn" onclick="window.location.href='/'">Switch to Individual Search</button>
+    <div class="results">
     {% for cluster in clusters %}
         <h2>
             <button 
@@ -53,6 +55,7 @@
             {% endfor %}
         </ul>
     {% endfor %}
+</div>
     <script>
         function toggleCluster(clusterId) {
             var clusterElement = document.getElementById(clusterId);
