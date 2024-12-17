@@ -8,8 +8,11 @@ def search_games_view(request):
     results = []
 
     if query:
-        db_paths = ['db1.sqlite3', 'db2.sqlite3', 'db3.sqlite3']
-        results = search_games(query, db_paths)
+        db_table_map = {
+        './steam.db': 'steam',  # Replace with the correct table name for steam.db
+        './itchio.db': 'itchio',  # Replace with the correct table name for itchio.db
+        }
+        results = search_games(query, db_table_map)
 
     return render(request, 'index.html', {'query': query, 'results': results})
 

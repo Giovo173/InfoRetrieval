@@ -3,13 +3,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ThreadPoolExecutor
 
-def process_database(db_path, query_vector, vectorizer):
+def process_database(db_path, query_vector, vectorizer, table_name):
     """Process a single database to calculate similarity scores."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-
+    
     # Fetch game details, including stemmed descriptions
-    cursor.execute("SELECT id, title, tags, stemmed_description FROM games")
+    cursor.execute(f"SELECT id, title, tags, stemmed_description FROM {table_name}")
     games = cursor.fetchall()
 
     # Combine text fields (use stemmed_description instead of description)
@@ -45,7 +45,7 @@ def query_databases(query, db_paths):
 
     # Use ThreadPoolExecutor for multithreading
     with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(process_database, db_path, query_vector, vectorizer) for db_path in db_paths]
+        futures = [executor.submit(process_database, db_path, query_vector, vectorizer, table_name) for db_path, table_name in db_paths]
 
         # Collect results from all threads
         results_list = [future.result() for future in futures]
