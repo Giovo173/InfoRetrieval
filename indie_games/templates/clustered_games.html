@@ -2,25 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="author" content="Daniel Dorigo Giovanni Elisei">
+    <title>Indie Game Lookout</title>
+    {% load static %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clustered Games</title>
+    <link rel="stylesheet" href="{% static 'cluster.css' %}">
+    <link rel="icon" href="{% static 'binoculars_17010397.png' %}" type="image/x-icon">
 </head>
 <body>
     <h1>Game Clusters</h1>
     {% for cluster in clusters %}
-        <h2>Cluster {{ cluster.cluster }}: {{ cluster.cluster_label }}</h2>
-        <ul>
+        <h2>
+            <button 
+            style="
+                background-color: rgb(173, 173, 173);
+                border-radius: 5px;
+                padding: 1vh;
+                font-size: 1.5em;
+                cursor: pointer;
+                border: 1px solid white;
+            " 
+            onclick="toggleCluster('cluster-{{ cluster.cluster }}')">{{ cluster.cluster_label }}</button>
+            
+        </h2>
+        <ul id="cluster-{{ cluster.cluster }}" style="display: none;">
             {% for game in games %}
                 {% if game.cluster == cluster.cluster %}
-                    <li>
-                        <strong>{{ game.title }}</strong> - ${{ game.price }}<br>
-                        {{game.image_path}}<br>
-                        Tags: {{ game.tags }}<br>
-                        Description: {{ game.description }}
-                    </li>
+                    <div class="result">
+                        <img src="{% static game.image_path %}" style="height: 250px;" alt="{{ game.title }} image" class="gameImg">
+                        
+                    <div class="gameSpec">
+                        <h2>{{ game.title }}</h2> 
+                        <div class="gameDesc">{{ game.description }}</div>
+                        <div class="gameTag">{{ game.tags }}</div>
+                        <div class="gamePrice">Price: {{ game.price }}</div>
+                    </div>
+                    </div>
                 {% endif %}
             {% endfor %}
         </ul>
     {% endfor %}
+    <script>
+        function toggleCluster(clusterId) {
+            var clusterElement = document.getElementById(clusterId);
+            if (clusterElement.style.display === "none") {
+                clusterElement.style.display = "block";
+            } else {
+                clusterElement.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
