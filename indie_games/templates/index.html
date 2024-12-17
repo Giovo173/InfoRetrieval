@@ -12,8 +12,7 @@
 <body>
     <main>
         <h1>The Indie Game Lookout</h1>
-        <form method="get" action="{% url 'search_games' %}"></form>
-            <label for="query">Search for games:</label>
+        <form method="get" action="{% url 'search_games' %}">
             <input id="query" name="q" type="text" placeholder="What are you looking for?">
             <button type="submit" id="btn">Search</button>
         </form>
@@ -21,11 +20,14 @@
         <div class="results">
             {% if results %}
                 <h2>Search Results:</h2>
-                <ul>
+                <div class="resultList">
                     {% for r in results %}
-                        <li>{{ r }}</li>
+                        <div class="result">
+                            <h3>{{ r.title }}</h3>
+                            <div>{{ r.tags }}</div>
+                        </div>
                     {% endfor %}
-                </ul>
+                </div>
             {% else %}
                 <span class="noRes"><b>No results yet . . . </b></span>
             {% endif %}

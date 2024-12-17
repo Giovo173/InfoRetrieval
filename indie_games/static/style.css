@@ -5,13 +5,16 @@
 
 body {
     color: white;
+    overflow: hidden;
 }
 
 main {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 4fr;
+    height: 100vh; /* Full viewport height */
 }
+
 
 h1 {
     grid-row: 1;
@@ -27,6 +30,7 @@ form{
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 0;
 }
 
 input {
@@ -45,6 +49,25 @@ input {
     border-radius: 2vh;
     padding: 2vh;
     box-shadow: 0 2vh 4vh rgb(0, 0, 0);
+    max-height: calc(100vh - 12vh); /* Adjust max height based on content */
+    overflow-y: auto; /* Display scrollbar only if needed */
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+    scrollbar-color: gray;
+}
+.resultList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.result {
+    padding: 1vh;
+    border: 2px solid white;
+    border-radius: 5px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
 }
 
 .noRes{

@@ -74,8 +74,8 @@ def search_games(query, db_paths):
     for db_path, table_name in db_paths:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        cursor.execute(f"SELECT title, tags, stemmed_description FROM {table_name}")
-        global_corpus.extend([f"{title} {tags} {stemmed_description}" for title, tags, stemmed_description in cursor.fetchall()])
+        cursor.execute(f"SELECT title, tags, description FROM {table_name}")
+        global_corpus.extend([f"{title} {tags} {description}" for title, tags, description in cursor.fetchall()])
         conn.close()
 
     vectorizer = TfidfVectorizer(stop_words='english')
