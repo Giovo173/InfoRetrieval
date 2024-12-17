@@ -6,14 +6,21 @@ from sklearn.cluster import KMeans
 from collections import Counter
 import re
 
-# Function to clean and standardize tags
+# Enhanced function to clean and standardize tags
 def clean_tags(tags):
     if not tags:
         return []
     # Split tags by common delimiters (e.g., comma, space)
     tag_list = re.split(r'[,\s]', tags)
-    # Remove empty strings and standardize case
-    return [tag.strip().lower() for tag in tag_list if tag.strip()]
+    # Remove empty strings, irrelevant entries, and standardize case
+    clean_list = [
+        tag.strip().lower()
+        for tag in tag_list
+        if tag.strip() and tag.strip().lower() not in ['indie', '+', ''] and len(tag.strip()) > 1
+    ]
+    # Remove non-alphanumeric tags
+    clean_list = [tag for tag in clean_list if re.match(r'^[a-z0-9\-]+$', tag)]
+    return clean_list
 
 # Function to generate meaningful cluster labels
 def get_cluster_labels(df, cluster_column, tags_column, top_n=2):
@@ -25,8 +32,7 @@ def get_cluster_labels(df, cluster_column, tags_column, top_n=2):
         for tags in cluster_tags:
             all_tags.extend(clean_tags(tags))
         # Count occurrences of tags, excluding irrelevant ones
-        filtered_tags = [tag for tag in all_tags if tag not in ['indie', '+'] and len(tag) > 1]
-        most_common = Counter(filtered_tags).most_common(top_n)
+        most_common = Counter(all_tags).most_common(top_n)
         labels[cluster] = ", ".join([tag for tag, _ in most_common])
     return labels
 
