@@ -10,7 +10,8 @@ def search_games_view(request):
     if query:
         db_table_map = [
     ('./steam.db', 'steam'), 
-    ('./itchio.db', 'itchio')
+    ('./itchio.db', 'itchio'),
+    ('./gog.db', 'gog')
 ]
 
         results = search_games(query, db_table_map)

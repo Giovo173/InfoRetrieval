@@ -40,66 +40,91 @@ def scrape(num):
         
         # Get the games links and images
         games = soup.find_all('a', class_="product-tile product-tile--grid")
-        print(f"Found {len(links)} ")
+        print(f"Found {len(games)} games on page {i}")
+        
         for game in games:
             link = game['href']
             
-            # Find the <source> tag for the image
-            source_tag = game.find('source', {'type': 'image/webp'})
-            if source_tag and 'srcset' in source_tag.attrs:
-                srcset = source_tag['srcset']
-                # Extract the first image URL (before the comma)
-                image_url = srcset.split(',')[0].strip().split(' ')[0]
+            # Find the <picture> tag
+            picture_tag = game.find('picture')
+            if picture_tag:
+                # Find the first <source> tag with a 'srcset' attribute
+                source_tag = picture_tag.find('source', {'srcset': True})
+                if source_tag and 'srcset' in source_tag.attrs:
+                    # Extract the first image URL from the 'srcset' attribute
+                    srcset = source_tag['srcset']
+                    image_url = srcset.split(',')[0].strip().split(' ')[0]
+                else:
+                    image_url = None  # Fallback if no image is found
             else:
-                image_url = None  # Fallback in case no image is found
+                image_url = None  # Fallback if no picture tag is found
             
-            links.append((link, image_url))
-    print(links)
+            if image_url:
+                links.append((link, image_url))
+    
     ps = PorterStemmer()
     data_all = []
     for link, image_url in links:
         
         try:
-            req = requests.get(link)
-            
-            if req.status_code != 200:
-                print(f"Failed to fetch game")
+            try:
+                req = requests.get(link)
+                
+                if req.status_code != 200:
+                    print(f"Failed to fetch game")
+                    continue
+                
+                # Get the game page
+                soup = BeautifulSoup(req.content, 'html.parser')
+            except Exception as e:
+                print("Error while fetching ", link, e)
                 continue
             
-            # Get the game page
-            soup = BeautifulSoup(req.content, 'html.parser')
-            # Create the directory to save images if it doesn't exist
-            image_save_dir = "gog_images"
-            if not os.path.exists(image_save_dir):
-                os.makedirs(image_save_dir)
+            try:
+                # Create the directory to save images if it doesn't exist
+                image_save_dir = "gog_images"
+                if not os.path.exists(image_save_dir):
+                    os.makedirs(image_save_dir)
 
-            # Download the image
-            image_filename = os.path.join(image_save_dir, os.path.basename(image_url))
-            response = requests.get(image_url, headers=HEADERS, timeout=10)
-            with open(image_filename, 'wb') as img_file:
-                img_file.write(response.content)
-            title = soup.find('h1', class_='productcard-basics__title').text
+                # Download the image
+                image_filename = os.path.join(image_save_dir, os.path.basename(image_url))
+                response = requests.get(image_url, headers=HEADERS, timeout=10)
+                with open(image_filename, 'wb') as img_file:
+                    img_file.write(response.content)
+                title = soup.find('h1', class_='productcard-basics__title').text
+            except Exception as e:
+                print("Error while fetching image ", image_url, e)
+                continue
+            try:    
+                description = soup.find('div', class_="description").text
+                
+                tokenized_description = word_tokenize(description)
+                # Stemming
+                for i in range(len(tokenized_description)):
+                    tokenized_description[i] = ps.stem(tokenized_description[i])
+                    
+            except Exception as e:
+                print("Error while fetching description ", link, e)
+                continue
             
-            description = soup.find('div', class_="description").text
-            
-            tokenized_description = word_tokenize(description)
-            # Stemming
-            for i in range(len(tokenized_description)):
-                tokenized_description[i] = ps.stem(tokenized_description[i])
-            
-            rating = soup.find('div', class_="rating productcard-rating__score")
-            if rating:
-                rating = rating.text
-            else:
-                rating = "No rating"
-            
+            try:
+                rating = soup.find('div', class_="rating productcard-rating__score")
+                if rating:
+                    rating = rating.text
+                else:
+                    rating = "No rating"
+            except Exception as e:
+                print("Error while fetching rating ", link, e)
+                continue    
             print(title)
             print(rating)
-            
-            tags = [tag.text for tag in soup.find_all('a', class_="details__link details__link--tag")]
-            price_div = soup.find('div', class_="product-actions-price")
-            price = price_div.find('span', class_="product-actions-price__final-amount _price").text
-            
+            try:
+                tags = [tag.text for tag in soup.find_all('a', class_="details__link details__link--tag")]
+                price_div = soup.find('div', class_="product-actions-price")
+                price = price_div.find('span', class_="product-actions-price__final-amount _price").text
+            except Exception as e:
+                print("Error while fetching tags ", link, e)
+                continue    
             print(price, '\n')
             data = {
                 'title': title,
@@ -122,4 +147,4 @@ def scrape(num):
 
 
 
-scrape(6)
+scrape(20)

@@ -103,4 +103,4 @@ def search_games(query, db_paths):
 
 # Example usage
 results = search_games("indie platformer", [('./steam.db', 'steam'), ('./itchio.db', 'itchio')])
-print(results)
+

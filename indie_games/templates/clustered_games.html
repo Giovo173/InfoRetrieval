@@ -14,6 +14,7 @@
                 {% if game.cluster == cluster.cluster %}
                     <li>
                         <strong>{{ game.title }}</strong> - ${{ game.price }}<br>
+                        {{game.image_path}}<br>
                         Tags: {{ game.tags }}<br>
                         Description: {{ game.description }}
                     </li>
