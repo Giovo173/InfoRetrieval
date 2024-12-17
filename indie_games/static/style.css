@@ -49,6 +49,7 @@ input {
     background-color: rgb(173, 173, 173);
     color: white;
     cursor: pointer;
+    margin-left:1vh;
 }
 
 #btn:hover {
@@ -74,10 +75,40 @@ input {
     overflow-x: hidden;
 }
 
+.rating{
+    border: 1px solid white;
+    border-radius: 5px;
+    width: 50%;
+    padding: 1vh;
+    color: rgb(175, 175, 253);
+    margin: 2px;
+}
+
+.price{
+    color: greenyellow;
+    border: 1px solid white;
+    border-radius: 5px;
+    width: 50%;
+    padding: 1vh;
+    margin: 2px;
+}
+
+.viewlink{
+    border: 1px solid white;
+    border-radius: 5px;
+    width: 50%;
+    padding: 1vh;
+    margin: 2px;
+}
+
 .gameDesc {
-    width: 50%; /* Ensure full width */
-    white-space: pre-wrap; /* Allows line breaks without forcing element width */
-    word-wrap: break-word; /* Ensure words break as needed */
+    width: 50%;
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 1vh;
+    margin: 2px;
 }
 
 .gameImg{
@@ -98,9 +129,9 @@ input {
     border-radius: 5px;
     display: flex;
     flex-direction: row;
+    align-items: center;
     text-wrap: wrap;
     width: 80%;
-
 }
 
 .noRes{
