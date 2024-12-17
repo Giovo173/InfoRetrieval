@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Daniel Dorigo Giovanni Elisei">
+    <title>Indie Game Lookout</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="icon" href="{% static 'binoculars_17010397.png' %}" type="image/x-icon">
+</head>
+<body>
+    <main>
+        <h1>The Indie Game Lookout</h1>
+        <form method="get" action="{% url 'search_games' %}"></form>
+            <label for="query">Search for games:</label>
+            <input id="query" name="q" type="text" placeholder="What are you looking for?">
+            <button type="submit" id="btn">Search</button>
+        </form>
+
+        <div class="results">
+            {% if results %}
+                <h2>Search Results:</h2>
+                <ul>
+                    {% for r in results %}
+                        <li>{{ r }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <span class="noRes"><b>No results yet . . . </b></span>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
