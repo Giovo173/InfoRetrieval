@@ -62,20 +62,29 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 def fetch_game_details(url, image_url, image_save_dir="itch_images"):
     try:
-        # Create the directory to save images if it doesn't exist
-        if not os.path.exists(image_save_dir):
-            os.makedirs(image_save_dir)
 
-        # Download the image
-        image_filename = os.path.join(image_save_dir, os.path.basename(image_url))
-        response = requests.get(image_url, headers=HEADERS, timeout=10)
-        with open(image_filename, 'wb') as img_file:
-            img_file.write(response.content)
 
         # Fetch and parse the game's details page
-        response = requests.get(url, headers=HEADERS, timeout=10)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        try:
+            response = requests.get(url, headers=HEADERS, timeout=10)
+            soup = BeautifulSoup(response.text, 'html.parser')
+        except Exception:
+            print(f"Failed to fetch {url}")
+            return None
+        
+        try:
+            # Create the directory to save images if it doesn't exist
+            if not os.path.exists(image_save_dir):
+                os.makedirs(image_save_dir)
 
+            # Download the image
+            image_filename = os.path.join(image_save_dir, os.path.basename(url.split('/')[-1]) + image_url.split('.')[-1])
+            response = requests.get(image_url, headers=HEADERS, timeout=10)
+            with open(image_filename, 'wb') as img_file:
+                img_file.write(response.content)
+        except Exception:
+            image_filename = "No image available"
+            return None
         # Parse game details
         title_element = soup.find('h1', class_='game_title')
         if title_element:
@@ -139,7 +148,7 @@ def main():
     games_data = []
     for link in links:
         data = fetch_game_details(link.get('link'), link.get('image_url'))
-        if data:
+        if validate_data(data):
             games_data.append(data)
         time.sleep(random.uniform(1, 2))
 
@@ -147,6 +156,13 @@ def main():
     print("Storing data in the database...")
     store_in_database(games_data, 'itchio')
     print("Done!")
-
+    
+def validate_data(data):
+    #if any of the fields of the data except for description is empty, return False
+    for key, value in data.items():
+        if key != 'description' and not value:
+            return False
+    return True
+    
 if __name__ == "__main__":
     main()

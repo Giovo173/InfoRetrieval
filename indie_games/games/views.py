@@ -18,6 +18,16 @@ def search_games_view(request):
 
     return render(request, 'index.html', {'query': query, 'results': results})
 
+def browse_games_view(request):
+    db_table_map = [
+    ('./steam.db', 'steam'), 
+    ('./itchio.db', 'itchio'),
+    ('./gog.db', 'gog')
+    ]
+    results = search_games("", db_table_map)
+    return render(request, 'index.html', {'results': results})
+    
+
 def clustered_games_view(request):
     selected_cluster = request.GET.get('cluster')
     clusters = ClusteredGame.objects.values('cluster', 'cluster_label').distinct()

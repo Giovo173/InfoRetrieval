@@ -114,12 +114,13 @@ def fetch_game_details():
                         os.makedirs(image_save_dir)
 
                     # Download the image
-                    image_filename = os.path.join(image_save_dir, os.path.basename(image_url))
+                    image_filename = os.path.join(image_save_dir, os.path.basename(l.split('/')[-1]) + image_url.split('.')[-1])
                     response = requests.get(image_url, headers=HEADERS, timeout=10)
                     with open(image_filename, 'wb') as img_file:
                         img_file.write(response.content)
                 except Exception:
                     image_url = "No image available"
+                    continue
 
                 try:
                     price = retry_find_element(driver, By.CLASS_NAME, 'discount_original_price').text.strip()
