@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from games.models import Game
 from django.db.models import Q
-from mapreduce import search_games
+from games.mapreduce import search_games
 from .models import ClusteredGame
 
 def search_games_view(request):
