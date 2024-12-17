@@ -57,17 +57,35 @@ input {
 }
 .resultList {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 5px;
+}
+
+.gameDesc {
+    width: 100%; /* Ensure full width */
+    white-space: pre-wrap; /* Allows line breaks without forcing element width */
+    word-wrap: break-word; /* Ensure words break as needed */
+}
+
+.gameImg{
+    border-radius: 5px;
+}
+
+.gameConts{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: left;
+    padding: 1vh;
 }
 
 .result {
     padding: 1vh;
     border: 2px solid white;
     border-radius: 5px;
-    width: 90%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    text-wrap: wrap;
+
 }
 
 .noRes{

@@ -8,12 +8,12 @@ def process_database(db_path, query_vector, vectorizer, table_name):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Fetch game details, including stemmed descriptions
-    cursor.execute(f"SELECT id, title, tags, stemmed_description FROM {table_name}")
+    # Fetch game details, including stemmed descriptions, price, and image URL
+    cursor.execute(f"SELECT id, title, tags, description, price, image_path FROM {table_name}")
     games = cursor.fetchall()
 
     # Combine text fields (use stemmed_description instead of description)
-    corpus = [f"{title} {tags} {stemmed_description}" for _, title, tags, stemmed_description in games]
+    corpus = [f"{title} {tags} {description}" for _, title, tags, description, _, _ in games]
     tfidf_matrix = vectorizer.transform(corpus)  # Use transform, not fit_transform
 
     # Calculate cosine similarity
@@ -25,8 +25,10 @@ def process_database(db_path, query_vector, vectorizer, table_name):
             "db_path": db_path,
             "game_id": game[0],
             "title": game[1],
-            "description": game[2],
-            "tags": game[3],  # Corrected index for tags
+            "tags": game[2],  # Corrected index for tags
+            "description": game[3],
+            "price": game[4],
+            "image_path": game[5],
             "score": score
         }
         for game, score in zip(games, scores)

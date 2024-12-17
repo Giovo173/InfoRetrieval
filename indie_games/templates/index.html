@@ -23,8 +23,13 @@
                 <div class="resultList">
                     {% for r in results %}
                         <div class="result">
+                            <img src="{% static r.image_path %}" alt="{{ r.title }} image" style="max-height: 300px;" class="gameImg">
+                            <div class="gameConts">
                             <h3>{{ r.title }}</h3>
-                            <div>{{ r.tags }}</div>
+                            <div>{{ r.score }}</div>
+                            <div class="gameDesc">{{ r.description }}</div>
+                            <div>{{ r.price }}</div>
+                        </div>
                         </div>
                     {% endfor %}
                 </div>
