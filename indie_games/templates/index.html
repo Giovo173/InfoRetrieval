@@ -29,6 +29,15 @@
                             <div>{{ r.score }}</div>
                             <div class="gameDesc">{{ r.description }}</div>
                             <div>{{ r.price }}</div>
+                            <div>
+                                {% if r.db_path == './itch.db' %}
+                                    <a href="https://itch.io" target="_blank">View on itch.io</a>
+                                {% elif r.db_path == './steam.db' %}
+                                    <a href="https://store.steampowered.com" target="_blank">View on Steam</a>
+                                {% else %}
+                                    <a href="https://www.gog.com" target="_blank">View on GOG</a>
+                                {% endif %}
+                            </div>
                         </div>
                         </div>
                     {% endfor %}
