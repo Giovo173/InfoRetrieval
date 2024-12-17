@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 import os
 import requests
-
+import time
 # Download NLTK data (run once)
 # nltk.download('punkt')
 nltk.download('punkt_tab')
@@ -40,7 +40,7 @@ def scrape(num):
         
         # Get the games links and images
         games = soup.find_all('a', class_="product-tile product-tile--grid")
-        print(f"Found {len(games)} games on page {i}")
+        print(f"Found {len(links)} ")
         for game in games:
             link = game['href']
             
@@ -54,12 +54,20 @@ def scrape(num):
                 image_url = None  # Fallback in case no image is found
             
             links.append((link, image_url))
-    
+    print(links)
     ps = PorterStemmer()
     data_all = []
     for link, image_url in links:
         
         try:
+            req = requests.get(link)
+            
+            if req.status_code != 200:
+                print(f"Failed to fetch game")
+                continue
+            
+            # Get the game page
+            soup = BeautifulSoup(req.content, 'html.parser')
             # Create the directory to save images if it doesn't exist
             image_save_dir = "gog_images"
             if not os.path.exists(image_save_dir):
@@ -70,10 +78,6 @@ def scrape(num):
             response = requests.get(image_url, headers=HEADERS, timeout=10)
             with open(image_filename, 'wb') as img_file:
                 img_file.write(response.content)
-            
-            # Get the game page
-            soup = BeautifulSoup(requests.get(link).content, 'html.parser')
-            
             title = soup.find('h1', class_='productcard-basics__title').text
             
             description = soup.find('div', class_="description").text
@@ -110,6 +114,7 @@ def scrape(num):
             data_all.append(data)
         except Exception as e:
             print("Error while scraping ", link, e)
+        time.sleep(1)
 
     store_in_database(data_all, 'gog')
     print("Added to database", len(data_all))
@@ -117,4 +122,4 @@ def scrape(num):
 
 
 
-scrape(4)
+scrape(6)
