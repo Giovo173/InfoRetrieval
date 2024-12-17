@@ -49,6 +49,7 @@ input {
     background-color: rgb(173, 173, 173);
     color: white;
     cursor: pointer;
+    margin-left:1vh;
 }
 
 #btn:hover {
