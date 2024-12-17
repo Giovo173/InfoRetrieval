@@ -9,6 +9,7 @@ class ClusteredGame(models.Model):
     price = models.FloatField()
     image_path = models.CharField(max_length=255)
     rating = models.CharField(max_length=255)
+    url = models.CharField(max_length=255)
     cluster = models.IntegerField()
     cluster_label = models.CharField(max_length=255)
 
