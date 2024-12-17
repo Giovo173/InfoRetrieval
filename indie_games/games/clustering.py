@@ -40,7 +40,7 @@ dataframes = []
 
 for path, table_name in db_table_map.items():
     conn = sqlite3.connect(path)
-    query = f"SELECT id, title, description, tags, price FROM {table_name}"
+    query = f"SELECT id, title, description, tags, price, image_path FROM {table_name}"
     dataframes.append(pd.read_sql_query(query, conn))
     conn.close()
     
