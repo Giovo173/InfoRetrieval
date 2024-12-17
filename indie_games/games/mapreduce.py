@@ -63,13 +63,24 @@ def shuffle_and_sort(results_list):
     combined_results.sort(key=lambda x: x["score"], reverse=True)
     return combined_results
 
+from urllib.parse import urlparse
+
+def normalize_url(url):
+    """Normalize URL to ensure consistency."""
+    parsed_url = urlparse(url)
+    return parsed_url._replace(query="", fragment="").geturl()
+
 def reduce_phase(combined_results):
-    """Remove duplicate games based on game_id and keep the highest score."""
+    """Remove duplicate games based on normalized URL"""
     unique_results = {}
     for result in combined_results:
-        game_id = result["game_id"]
-        if game_id not in unique_results or result["score"] > unique_results[game_id]["score"]:
-            unique_results[game_id] = result
+        url = normalize_url(result["url"])
+        if url not in unique_results:
+            unique_results[url] = result
+        else:
+            # If the game already exists, keep the one with the higher score
+            if result["score"] > unique_results[url]["score"]:
+                unique_results[url] = result
 
     return list(unique_results.values())
 
