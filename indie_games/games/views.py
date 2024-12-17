@@ -7,14 +7,14 @@ def search_games_view(request):
     query = request.GET.get('q', '')
     results = []
 
-    if query:
-        db_table_map = [
+    
+    db_table_map = [
     ('./steam.db', 'steam'), 
     ('./itchio.db', 'itchio'),
     ('./gog.db', 'gog')
     ]
-
-    results = search_games(query, db_table_map)
+    if query:
+        results = search_games(query, db_table_map)
 
     return render(request, 'index.html', {'query': query, 'results': results})
 
