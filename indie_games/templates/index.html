@@ -14,11 +14,26 @@
         <h1>The Indie Game Lookout</h1>
         <button type="button" id="clustered-btn" onclick="window.location.href='/clustered-games/'">Switch to Clustered Games</button>
         <form method="get" action="{% url 'search_games' %}" class="searchform">
-            <input id="query" name="q" type="text" placeholder="What are you looking for?">
+            <input id="query" name="q" type="text" placeholder="What are you looking for?" value="{{ query }}">
             <button type="submit" id="btn">Search</button>
+            <select name="price_range" id="price_range">
+                <option value="" {% if not price_range %}selected{% endif %}>All Prices</option>
+                <option value="free" {% if price_range == "free" %}selected{% endif %}>Free</option>
+                <option value="low" {% if price_range == "low" %}selected{% endif %}>Low (Under $10)</option>
+                <option value="mid" {% if price_range == "mid" %}selected{% endif %}>Medium ($10 - $50)</option>
+                <option value="high" {% if price_range == "high" %}selected{% endif %}>High (Above $50)</option>
+            </select>
         </form>
+        
         <form method="get" action="{% url 'browse_games' %}" class="browseform">
             <button type="submit" id="browse-btn">Browse the collection</button>
+            <select name="price_range" id="price_range">
+                <option value="" {% if not price_range %}selected{% endif %}>All Prices</option>
+                <option value="free" {% if price_range == "free" %}selected{% endif %}>Free</option>
+                <option value="low" {% if price_range == "low" %}selected{% endif %}>Low (Under $10)</option>
+                <option value="mid" {% if price_range == "mid" %}selected{% endif %}>Medium ($10 - $50)</option>
+                <option value="high" {% if price_range == "high" %}selected{% endif %}>High (Above $50)</option>
+            </select>
         </form>
 
         <div class="results">
