@@ -20,6 +20,8 @@ h1 {
     grid-column: 2;
     display: flex;
     justify-self: center;
+    align-items: center;
+    text-align: center;
     padding: 3vh;
     margin-bottom: 0;
 }

@@ -11,7 +11,7 @@
 </head>
 <body>
     <main>
-        <h1>The Indie Game Lookout</h1>
+        <h1><img src="{% static 'binoculars_17010397.png' %}" style="height: 100px;" alt="">The Indie Game Lookout <img src="{% static 'binoculars_17010397.png' %}" style="height: 100px;" alt=""></h1>
         <button type="button" id="clustered-btn" onclick="window.location.href='/clustered-games/'">Switch to Clustered Games</button>
         <form method="get" action="{% url 'search_games' %}" class="searchform">
             <input id="query" name="q" type="text" placeholder="What are you looking for?" value="{{ query }}">
