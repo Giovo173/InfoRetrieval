@@ -14,7 +14,7 @@ HEADERS = {
     'User-Agent': 'YourProjectName/1.0 (contact@example.com)'
 }
 
-def get_game_links():
+def get_game_links(num_scrolls):
     driver = webdriver.Chrome()
     driver.get("https://itch.io/games/")
     
@@ -22,7 +22,7 @@ def get_game_links():
     game_info = []  # To store the final results (links and image URLs)
 
     try:
-        for _ in range(20):  # Adjust for the number of scrolls you need
+        for _ in range(num_scrolls):  # Adjust for the number of scrolls you need
             # Find all 'a' elements with the class 'thumb_link game_link'
             games = driver.find_elements(By.CSS_SELECTOR, '.thumb_link.game_link')
             
@@ -138,10 +138,10 @@ def fetch_game_details(url, image_url, image_save_dir="itch_images"):
         return None
 
 # Main function
-def main():
+def main(num_scrolls=20):
     # Step 1: Collect game links
     print("Collecting game links...")
-    links = get_game_links()
+    links = get_game_links(num_scrolls)
 
     # Step 2: Fetch game details using multithreading
     print("Fetching game details...")

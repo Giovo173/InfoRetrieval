@@ -65,7 +65,7 @@ def scrape(num):
     ps = PorterStemmer()
     data_all = []
     for link, image_url in links:
-        
+        time.sleep(1.5)
         try:
             try:
                 req = requests.get(link)
@@ -82,7 +82,7 @@ def scrape(num):
             
             try:
                 # Create the directory to save images if it doesn't exist
-                image_save_dir = "gog_images"
+                image_save_dir = "./indie_games/static/gog_images"
                 if not os.path.exists(image_save_dir):
                     os.makedirs(image_save_dir)
 
@@ -147,4 +147,4 @@ def scrape(num):
 
 
 
-scrape(20)
+scrape(2)

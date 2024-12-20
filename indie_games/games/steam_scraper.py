@@ -16,7 +16,7 @@ import requests
 import os
 ps = PorterStemmer()
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'}
-def get_game_links():
+def get_game_links(max_attempts):
     links = []
     options = Options()
     options.headless = True  # Set to True for headless browsing
@@ -36,7 +36,7 @@ def get_game_links():
         
         # Scroll and collect game links
         prev_game_count = 0
-        max_attempts = 25
+        
         attempts = 0
 
         while attempts < max_attempts:
@@ -82,14 +82,14 @@ def get_game_links():
     return links
 
 
-def fetch_game_details():
+def fetch_game_details(attempts=25):
     game_details = []
     options = Options()
     options.headless = True
     driver = webdriver.Chrome(options=options)
     
     try:
-        for l in get_game_links():
+        for l in get_game_links(attempts):
             try:
                 driver.get(l)
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'apphub_AppName')))
@@ -182,5 +182,5 @@ def retry_find_element(driver, by, value, retries=3):
             else:
                 raise e
 
-
-store_in_database(fetch_game_details(), 'steam')
+def main_steam(num):
+    store_in_database(fetch_game_details(num), 'steam')
